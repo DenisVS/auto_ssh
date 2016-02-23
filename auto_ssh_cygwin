@@ -1,0 +1,48 @@
+#!/bin/sh
+
+PID_FILE=/var/run/auto_ssh
+
+PID_FROM_FILE=`cat ${PID_FILE}`
+GO=0
+echo PID скрипта $$
+# Если файл есть
+if [ "${PID_FROM_FILE}" != "" ]; then
+    PROC_PID=`ps -aef | awk -v p=${PID_FROM_FILE}  '{if ($2==p)  print $2}'`
+
+    echo файл ${PID_FROM_FILE}
+    echo процесс ${PROC_PID}
+    if [ "${PID_FROM_FILE}" = "${PROC_PID}" ]; then
+        echo уже работает программа
+        GO=0
+    else
+	echo не работает, а пид остался
+	rm ${PID_FILE}
+	echo $$ > ${PID_FILE}
+	GO=1
+    fi
+else
+    echo Файла нет
+    echo $$ > ${PID_FILE}
+    GO=1
+fi
+
+# Запускаем?
+if [ "${GO}" = "1" ]; then
+    while true
+    do
+        echo Opening SSH session
+        touch /tmp/ssh
+        echo $$ > /tmp/ssh
+
+	ssh -f -N -R 192.168.1.60:44418:localhost:22 sshtunnel@example.com -p 20022
+
+        echo SSH session disconnected  >> /tmp/ssh
+        echo ----------------- >> /tmp/ssh
+        echo `ps -la | grep ssh | grep -v sshd` >> /tmp/ssh
+        echo ================== >> /tmp/ssh
+
+        sleep 60
+    done
+rm ${PID_FILE}
+fi
+
