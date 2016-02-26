@@ -12,7 +12,7 @@
 TUNNEL_DOMAIN=example.com
 TUNNEL_PORT=20022
 TUNNEL_USER=sshtunnel
-OPTIONS_STRING="-R 192.168.1.60:32750:127.0.0.1:1944 -R 192.168.1.60:4242:192.168.1.20:80"
+OPTIONS_STRING="-R 32750:127.0.0.1:1944 -R 192.168.1.60:4242:192.168.1.20:80"
 
 # Получаем статус соединения (ssh)
 #CONNECT=`/usr/bin/sockstat | grep 8.8.8.8:20022 | awk '{print $2}'`

@@ -34,7 +34,7 @@ if [ "${GO}" = "1" ]; then
         touch /tmp/ssh
         echo $$ > /tmp/ssh
 
-	ssh -f -N -R 192.168.1.60:44418:localhost:22 sshtunnel@example.com -p 20022
+	ssh -f -N -R 44418:localhost:22 sshtunnel@example.com -p 20022
 
         echo SSH session disconnected  >> /tmp/ssh
         echo ----------------- >> /tmp/ssh
