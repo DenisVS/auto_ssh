@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id$
+#$Id: auto_ssh 7 2016-02-26 09:57:48Z denis $
 #TUNNEL_IP - IP сервера туннеля в местной локальной сети (на время наладки)
 #TUNNEL_DOMAIN - домен сервера туннеля
 #TUNNEL_PORT - порт SSH демона на сервере туннеля
@@ -36,27 +36,33 @@ OPTIONS_STRING="-R 192.168.1.60:30139:192.168.1.1:139 -R 192.168.1.60:30445:192.
 #OPTIONS_STRING="-R 192.168.1.60:32750:127.0.0.1:1944 -R 192.168.1.60:4242:192.168.1.20:80"
 #OPTIONS_STRING="-R 192.168.1.60:32750:127.0.0.1:1944 -R 192.168.1.60:4242:192.168.1.20:80 -R 192.168.1.60:1390:192.168.1.1:1390"
 
-# Получаем статус соединения (ssh)
-#CONNECT=`/usr/bin/sockstat | grep 8.8.8.8:20022 | awk '{print $2}'`
+# Пример: CONNECT=`/usr/bin/sockstat | grep 8.8.8.8:20022 | awk '{print $2}'` # ХРЕН ЗНАЕТ КУДА
+
+### Получаем статус соединения (ssh)
+## Статус при наличии домена в настройках
 if [ "${TUNNEL_DOMAIN}" != "" ]; then
     # Получаем IP из домена
     #DOMAIN_IP=`/usr/bin/drill example.com | grep ^example.com | grep '[[:blank:]]A[[:blank:]]' | awk '{print $5}'`
     DOMAIN_IP=`/usr/bin/drill ${TUNNEL_DOMAIN} | grep ^${TUNNEL_DOMAIN} | grep '[[:blank:]]A[[:blank:]]' | awk '{print $5}'`
-    echo DOMAIN_IP=${DOMAIN_IP}    
-    CONNECT_DOMAIN=`/usr/bin/sockstat | grep ${DOMAIN_IP}:${TUNNEL_PORT} | awk '{print $2}'`
-    echo CONNECT_DOMAIN=${CONNECT_DOMAIN}
+    echo DOMAIN_IP=${DOMAIN_IP}  
+    # Получаем статус
+    STATUS_CONNECT_DOMAIN=`/usr/bin/sockstat | grep ${DOMAIN_IP}:${TUNNEL_PORT} | awk '{print $2}'`
+    echo STATUS_CONNECT_DOMAIN=${STATUS_CONNECT_DOMAIN}
 fi
+## /Статус при наличии домена в настройках
+## Статус при наличии IP
 if [ "${TUNNEL_IP}" != "" ]; then
-    CONNECT_IP=`/usr/bin/sockstat | grep ${TUNNEL_IP}:${TUNNEL_PORT} | awk '{print $2}'`
-    echo CONNECT_IP=${CONNECT_IP}
+    STATUS_CONNECT_IP=`/usr/bin/sockstat | grep ${TUNNEL_IP}:${TUNNEL_PORT} | awk '{print $2}'`
+    echo STATUS_CONNECT_IP=${STATUS_CONNECT_IP}
 fi
-
-if [ "${CONNECT_IP}" = "ssh" -o "${CONNECT_DOMAIN}" = "ssh" ]; then
+## /Статус при наличии IP
+### /Получаем статус соединения (ssh)
+if [ "${STATUS_CONNECT_IP}" = "ssh" -o "${STATUS_CONNECT_DOMAIN}" = "ssh" ]; then
     echo "Tunnel online."
     exit 1
 else
-    echo "Tunnel ofline."
-    echo "Now up tunnel."
+    echo "The tunnel is offline."
+    echo "Now up the tunnel."
     if [ "${TUNNEL_DOMAIN}" != "" ]; then
         ssh -o ServerAliveInterval=${ALIVE_INTERVAL} -f -N ${OPTIONS_STRING} ${TUNNEL_USER}@${TUNNEL_DOMAIN} -p${TUNNEL_PORT}
     fi        
