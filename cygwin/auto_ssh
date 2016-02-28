@@ -35,7 +35,7 @@ if [ "${GO}" = "1" ]; then
     while true
     do
         echo Opening SSH session
-	ssh -o ServerAliveInterval=${ALIVE_INTERVAL} -f -N ${OPTIONS_STRING} ${TUNNEL_USER}@${TUNNEL_DOMAIN} -p${TUNNEL_PORT}
+	ssh -o ServerAliveInterval=${ALIVE_INTERVAL} -N ${OPTIONS_STRING} ${TUNNEL_USER}@${TUNNEL_DOMAIN} -p${TUNNEL_PORT}
         sleep ${PAUSE}
     done
     rm ${PID_FILE}
