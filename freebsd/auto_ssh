@@ -58,7 +58,7 @@ fi
 ## /Статус при наличии IP
 ### /Получаем статус соединения (ssh)
 if [ "${STATUS_CONNECT_IP}" = "ssh" -o "${STATUS_CONNECT_DOMAIN}" = "ssh" ]; then
-    echo "Tunnel online."
+    echo "The tunnel is online."
     exit 1
 else
     echo "The tunnel is offline."
