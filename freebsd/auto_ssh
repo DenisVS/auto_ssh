@@ -7,6 +7,9 @@
 #TUNNEL_BIND_PORT - SSH порт, организуемый на сервере туннеля для форвардинга соединений
 #TARGET_HOST - хост, на который форвардится SSH соединение (обычно, 127.0.0.1 для управления инициирующим туннель компьютером)
 #TARGET_PORT - порт, на который форвардится SSH соединение
+#type crontab -e and put
+#*/4    *       *       *       *           /etc/tasks/auto_ssh  > /dev/null 2>&1
+
 
 #TUNNEL_IP=192.168.1.60
 TUNNEL_DOMAIN=example.com
