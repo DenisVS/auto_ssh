@@ -5,9 +5,11 @@ TUNNEL_PORT=20022
 TUNNEL_USER=sshtunnel
 ALIVE_INTERVAL=60
 PID_FILE=/var/run/auto_ssh
-OPTIONS_STRING="-R 44418:localhost:22"
+OPTIONS_STRING="-R 44402:localhost:22"
 PAUSE=20
 
+# Put the next line in crontab file of Your user:
+# */5     *       *       *       *       /bin/sh /etc/tasks/auto_ssh
 ############################################################
 PID_FROM_FILE=`cat ${PID_FILE}`
 GO=0
