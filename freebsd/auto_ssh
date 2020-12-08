@@ -8,6 +8,8 @@
 #TARGET_HOST - хост, на который форвардится SSH соединение (обычно, 127.0.0.1 для управления инициирующим туннель компьютером)
 #TARGET_PORT - порт, на который форвардится SSH соединение
 #type crontab -e and put
+#*/4    *       *       *       *           /etc/tasks/auto_ssh
+# The next sample is wrong. "/dev/null 2>&1" is crap.
 #*/4    *       *       *       *           /etc/tasks/auto_ssh  > /dev/null 2>&1
 
 
@@ -33,13 +35,17 @@ OPTIONS_STRING="-R 192.168.1.60:30139:192.168.1.1:139 -R 192.168.1.60:30445:192.
 -R 192.168.1.60:32750:127.0.0.1:1944 -R 192.168.1.60:4242:192.168.1.20:80 \
 -R 44421:192.168.1.1:1944 -w 5:5"
 
-OPTIONS_STRING="-R 44421:localhost:1944"
-
+OPTIONS_STRING="-R 44440:localhost:22"
 #OPTIONS_STRING="-R 139:192.168.1.1:139 -R 445:127.0.0.1:445 -R 192.168.1.60:137:127.0.0.1:137 -R 192.168.1.60:138:127.0.0.1:138 -R 192.168.1.60:32750:127.0.0.1:1944 -R 192.168.1.60:4242:192.168.1.20:80"
 #OPTIONS_STRING="-R 192.168.1.60:32750:127.0.0.1:1944 -R 192.168.1.60:4242:192.168.1.20:80"
 #OPTIONS_STRING="-R 192.168.1.60:32750:127.0.0.1:1944 -R 192.168.1.60:4242:192.168.1.20:80 -R 192.168.1.60:1390:192.168.1.1:1390"
 
-# Пример: CONNECT=`/usr/bin/sockstat | grep 8.8.8.8:20022 | awk '{print $2}'` # ХРЕН ЗНАЕТ КУДА
+
+#Changes
+# Example: CONNECT=`/usr/bin/sockstat | grep 8.8.8.8:20022 | awk '{print $2}'`
+# Example: CONNECT=`/usr/bin/sockstat | grep  8.8.8.8:20022 | awk '{print $2}' | sed -n 1p` 
+
+#This how to check script: /usr/bin/sockstat | grep  8.8.8.8:20022 | awk '{print $2}
 
 ### Получаем статус соединения (ssh)
 ## Статус при наличии домена в настройках
@@ -49,13 +55,13 @@ if [ "${TUNNEL_DOMAIN}" != "" ]; then
     DOMAIN_IP=`/usr/bin/drill ${TUNNEL_DOMAIN} | grep ^${TUNNEL_DOMAIN} | grep '[[:blank:]]A[[:blank:]]' | awk '{print $5}'`
     echo DOMAIN_IP=${DOMAIN_IP}  
     # Получаем статус
-    STATUS_CONNECT_DOMAIN=`/usr/bin/sockstat | grep ${DOMAIN_IP}:${TUNNEL_PORT} | awk '{print $2}'`
+    STATUS_CONNECT_DOMAIN=`/usr/bin/sockstat | grep ${DOMAIN_IP}:${TUNNEL_PORT} | awk '{print $2}' | sed -n 1p`
     echo STATUS_CONNECT_DOMAIN=${STATUS_CONNECT_DOMAIN}
 fi
 ## /Статус при наличии домена в настройках
 ## Статус при наличии IP
 if [ "${TUNNEL_IP}" != "" ]; then
-    STATUS_CONNECT_IP=`/usr/bin/sockstat | grep ${TUNNEL_IP}:${TUNNEL_PORT} | awk '{print $2}'`
+    STATUS_CONNECT_IP=`/usr/bin/sockstat | grep ${TUNNEL_IP}:${TUNNEL_PORT} | awk '{print $2}' | sed -n 1p`
     echo STATUS_CONNECT_IP=${STATUS_CONNECT_IP}
 fi
 ## /Статус при наличии IP
@@ -68,6 +74,7 @@ else
     echo "Now up the tunnel."
     if [ "${TUNNEL_DOMAIN}" != "" ]; then
         ssh -o ServerAliveInterval=${ALIVE_INTERVAL} -f -N ${OPTIONS_STRING} ${TUNNEL_USER}@${TUNNEL_DOMAIN} -p${TUNNEL_PORT}
+#	echo ${ALIVE_INTERVAL} -f -N ${OPTIONS_STRING} ${TUNNEL_USER}@${TUNNEL_DOMAIN} -p${TUNNEL_PORT} >> /var/log/ssh.log
     fi        
     if [ "${TUNNEL_IP}" != "" ]; then
         ssh -o ServerAliveInterval=${ALIVE_INTERVAL} -f -N ${OPTIONS_STRING} ${TUNNEL_USER}@${TUNNEL_IP} -p${TUNNEL_PORT}
